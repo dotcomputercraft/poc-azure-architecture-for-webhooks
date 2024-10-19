@@ -1,0 +1,7 @@
+@startuml
+
+actor LoadBalancer
+LoadBalancer -> NGINX: Forward HTTP request
+NGINX -> FastAPI: Load balanced request
+
+@enduml

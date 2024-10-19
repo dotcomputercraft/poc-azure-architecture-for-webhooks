@@ -1,0 +1,13 @@
+@startuml
+
+actor NGINX
+participant "Kafka or Azure Service Bus" as Queue
+participant "FastAPI (Azure Function)" as FastAPI
+
+NGINX -> FastAPI: Forward HTTP request
+FastAPI -> FastAPI: Generate correlationId
+FastAPI -> Queue: Post message with correlationId
+Queue -> FastAPI: Acknowledge
+FastAPI -> NGINX: Return Response (correlationId)
+
+@enduml

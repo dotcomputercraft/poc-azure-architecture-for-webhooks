@@ -1,0 +1,12 @@
+@startuml
+
+actor Client
+Client -> LoadBalancer: HTTP POST Request
+
+LoadBalancer -> NGINX: Forward to NGINX Docker
+
+NGINX -> FastAPI: Forward to FastAPI Docker
+
+FastAPI -> Kafka: Post message with correlationId
+
+@enduml

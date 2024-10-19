@@ -1,0 +1,18 @@
+@startuml
+
+actor Webhook as User
+participant "Azure Load Balancer" as ALB
+participant "Nginx (Azure Function)" as Nginx
+participant "FastAPI (Azure Function)" as FastAPI
+participant "Kafka or Azure Service Bus" as Queue
+
+User -> ALB: Send POST (clientId, opportunityId)
+ALB -> Nginx: Forward POST
+Nginx -> FastAPI: Forward POST
+FastAPI -> FastAPI: Generate correlationId
+FastAPI -> Queue: Post (clientId, opportunityId, correlationId)
+Queue -> FastAPI: Acknowledge
+FastAPI -> Nginx: Return Response (correlationId)
+Nginx -> User: Return Response (correlationId)
+
+@enduml
