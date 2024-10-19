@@ -158,6 +158,8 @@ async def handle_webhook(request: Request):
 handler = Mangum(app)
 ```
 
+This will allow FastAPI to work in a serverless environment using Mangum.
+
 ## Step 2.a: Azure Service Bus vs. Kafka
 
 You can use Azure Service Bus as an alternative to Kafka if you prefer a fully managed solution by Azure. Azure Service Bus provides reliable messaging capabilities, integrated with other Azure services. It’s advantageous if you are building event-driven architectures and need transactional processing with better security and support.
@@ -196,7 +198,12 @@ async def handle_webhook(request: Request):
     await queue_client.send_messages(message)
 
     return {"status": "Message sent", "correlationId": correlation_id}
+
+   # Mangum handler for Azure Functions
+   handler = Mangum(app)
 ```
+
+This will allow FastAPI to work in a serverless environment using Mangum.
 
 ### Note on Scaling & Failover
 
