@@ -14,6 +14,15 @@ To build this Azure infrastructure, we will combine several key components: Azur
 4. Kafka or Azure ServiceBus: These services act as a message queue to store and process the webhook requests.
 5. Azure DevOps: Used to automate the deployment of the infrastructure and services.
 
+## Step 0: Azure Load Balancer Setup
+
+We’ll use an Azure Load Balancer at the entry point to distribute incoming webhook POST requests containing clientId and opportunity fields. This load balancer is the first layer of the architecture that can scale based on demand.
+
+### Azure Load Balancer Configuration:
+
+- Create a Public Load Balancer in the Azure portal.
+- Define health probes and rules for HTTP traffic on the appropriate ports (port 80 or 443 if using HTTPS).
+
 ## Step 1: NGINX Docker Setup
 
 ### Directory Structure
@@ -205,9 +214,20 @@ async def handle_webhook(request: Request):
 
 This will allow FastAPI to work in a serverless environment using Mangum.
 
+## Health Probe Endpoint (main.py):
+
+```python
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+```
+
+- Nginx will use this endpoint to determine if FastAPI is healthy.
+- Azure Load Balancer health probes will hit this endpoint to ensure uptime and auto-restart failed instances.
+
 ### Note on Scaling & Failover
 
-- Azure Functions' Premium Plan allows auto-scaling of Docker containers. If a FastAPI container crashes, a new one will automatically be provisioned.
+- Azure Functions' Premium Plan allows auto-scaling of Docker containers. If a FastAPI container crashes, a new one will automatically be provisioned or Azure Functions will restart it, and Nginx will redirect traffic to the healthy instances.
 - Use Azure Application Insights to monitor the health of FastAPI instances. Alerts can trigger container restarts.
 - The FastAPI application should be designed to be stateless and scalable.
 
